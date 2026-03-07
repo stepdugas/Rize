@@ -10,9 +10,22 @@
 		874792572F5C98E300C0F9B1 /* Rize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rize.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		873D014B2F5CC85D007CA891 /* Exceptions for "Rize" folder in "Rize" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 874792562F5C98E300C0F9B1 /* Rize */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		874792592F5C98E300C0F9B1 /* Rize */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				873D014B2F5CC85D007CA891 /* Exceptions for "Rize" folder in "Rize" target */,
+			);
 			path = Rize;
 			sourceTree = "<group>";
 		};
@@ -256,6 +269,8 @@
 				DEVELOPMENT_TEAM = YV56753Y7A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rize/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "Rize needs notifications to fire your alarms at the scheduled time.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -288,6 +303,8 @@
 				DEVELOPMENT_TEAM = YV56753Y7A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rize/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "Rize needs notifications to fire your alarms at the scheduled time.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
