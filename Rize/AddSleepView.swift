@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddSleepView: View {
-    @Binding var schedules: [SleepSchedule]
+    @ObservedObject var dataManager = DataManager.shared
     @Environment(\.dismiss) var dismiss
     
     @State private var label = ""
@@ -152,7 +152,7 @@ struct AddSleepView: View {
             fadeOut: fadeOut,
             fadeOutDuration: fadeOutDuration
         )
-        schedules.append(newSchedule)
+        dataManager.sleepSchedules.append(newSchedule)
         dismiss()
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AlarmsView: View {
-    @State private var alarms: [Alarm] = []
+    @ObservedObject var dataManager = DataManager.shared
     @State private var showingAddAlarm = false
     
     var body: some View {
@@ -26,7 +26,6 @@ struct AlarmsView: View {
                     
                     Spacer()
                     
-                    // Add Alarm Button
                     Button(action: {
                         showingAddAlarm = true
                     }) {
@@ -39,8 +38,7 @@ struct AlarmsView: View {
                 .padding(.horizontal)
                 .padding(.top)
                 
-                if alarms.isEmpty {
-                    // Empty state
+                if dataManager.alarms.isEmpty {
                     Spacer()
                     VStack(spacing: 12) {
                         Image(systemName: "alarm")
@@ -55,9 +53,8 @@ struct AlarmsView: View {
                     }
                     Spacer()
                 } else {
-                    // Alarm List
                     List {
-                        ForEach($alarms) { $alarm in
+                        ForEach($dataManager.alarms) { $alarm in
                             AlarmRowView(alarm: $alarm)
                                 .listRowBackground(Color(white: 0.1))
                         }
@@ -69,15 +66,11 @@ struct AlarmsView: View {
             }
         }
         .sheet(isPresented: $showingAddAlarm) {
-            AddAlarmView(alarms: $alarms, onSave: sortAlarms)
+            AddAlarmView()
         }
     }
     
     func deleteAlarm(at offsets: IndexSet) {
-        alarms.remove(atOffsets: offsets)
-    }
-    
-    func sortAlarms() {
-        alarms.sort { $0.time < $1.time }
+        dataManager.alarms.remove(atOffsets: offsets)
     }
 }

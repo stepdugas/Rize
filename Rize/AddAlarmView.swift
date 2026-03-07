@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct AddAlarmView: View {
-    @Binding var alarms: [Alarm]
-    var onSave: () -> Void
+    @ObservedObject var dataManager = DataManager.shared
     @Environment(\.dismiss) var dismiss
     
     @State private var selectedTime = Date()
@@ -140,8 +139,8 @@ struct AddAlarmView: View {
             repeatDays: repeatDays,
             snoozeDuration: snoozeDuration
         )
-        alarms.append(newAlarm)
-        onSave()
+        dataManager.alarms.append(newAlarm)
+        dataManager.sortAlarms()
         dismiss()
     }
 }

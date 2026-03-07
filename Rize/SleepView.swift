@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SleepView: View {
-    @State private var schedules: [SleepSchedule] = []
+    @ObservedObject var dataManager = DataManager.shared
     @State private var showingAddSchedule = false
     
     var body: some View {
@@ -26,7 +26,6 @@ struct SleepView: View {
                     
                     Spacer()
                     
-                    // Add Schedule Button
                     Button(action: {
                         showingAddSchedule = true
                     }) {
@@ -39,8 +38,7 @@ struct SleepView: View {
                 .padding(.horizontal)
                 .padding(.top)
                 
-                if schedules.isEmpty {
-                    // Empty state
+                if dataManager.sleepSchedules.isEmpty {
                     Spacer()
                     VStack(spacing: 12) {
                         Image(systemName: "moon.stars.fill")
@@ -55,9 +53,8 @@ struct SleepView: View {
                     }
                     Spacer()
                 } else {
-                    // Schedule List
                     List {
-                        ForEach($schedules) { $schedule in
+                        ForEach($dataManager.sleepSchedules) { $schedule in
                             SleepRowView(schedule: $schedule)
                                 .listRowBackground(Color(white: 0.1))
                         }
@@ -69,11 +66,11 @@ struct SleepView: View {
             }
         }
         .sheet(isPresented: $showingAddSchedule) {
-            AddSleepView(schedules: $schedules)
+            AddSleepView()
         }
     }
     
     func deleteSchedule(at offsets: IndexSet) {
-        schedules.remove(atOffsets: offsets)
+        dataManager.sleepSchedules.remove(atOffsets: offsets)
     }
 }
