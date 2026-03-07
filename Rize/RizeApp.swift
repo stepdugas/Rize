@@ -9,6 +9,12 @@ import SwiftUI
 
 @main
 struct RizeApp: App {
+    init() {
+        NotificationManager.shared.requestPermission { granted in
+            print(granted ? "Notifications granted ✅" : "Notifications denied ❌")
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()

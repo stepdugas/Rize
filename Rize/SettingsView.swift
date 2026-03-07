@@ -10,7 +10,13 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var dataManager = DataManager.shared
     @State private var vibrationEnabled = true
-    @State private var notificationsEnabled = false
+    @State private var notificationsEnabled = true
+    
+    func checkNotificationStatus() {
+        NotificationManager.shared.checkPermissionStatus { granted in
+            notificationsEnabled = granted
+        }
+    }
     
     var body: some View {
         ZStack {
@@ -102,14 +108,28 @@ struct SettingsView: View {
                             Spacer()
                             Toggle("", isOn: $notificationsEnabled)
                                 .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
+                                .onChange(of: notificationsEnabled) { oldValue, newValue in
+                                    if newValue {
+                                        NotificationManager.shared.requestPermission { granted in
+                                            notificationsEnabled = granted
+                                            if !granted {
+                                                if let url = URL(string: UIApplication.openSettingsURLString) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                         }
                         .padding()
+                        .onAppear {
+                            checkNotificationStatus()
+                        }
                     }
                     
                     // MARK: - App Section
                     SettingsSectionView(title: "APP") {
                         VStack(spacing: 0) {
-                            // Share the app
                             ShareLink(item: "Check out Rize - the Spotify alarm app! 🎵⏰") {
                                 HStack {
                                     Image(systemName: "square.and.arrow.up")
@@ -128,7 +148,6 @@ struct SettingsView: View {
                             Divider()
                                 .background(Color.gray.opacity(0.3))
                             
-                            // Version
                             HStack {
                                 Image(systemName: "info.circle")
                                     .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
@@ -146,7 +165,6 @@ struct SettingsView: View {
                     // MARK: - Legal Section
                     SettingsSectionView(title: "LEGAL") {
                         VStack(spacing: 0) {
-                            // Privacy Policy
                             Button(action: {
                                 if let url = URL(string: "https://stepdugas.github.io/rize-legal/privacy.html") {
                                     UIApplication.shared.open(url)
@@ -169,7 +187,6 @@ struct SettingsView: View {
                             Divider()
                                 .background(Color.gray.opacity(0.3))
                             
-                            // Terms of Use
                             Button(action: {
                                 if let url = URL(string: "https://stepdugas.github.io/rize-legal/terms.html") {
                                     UIApplication.shared.open(url)

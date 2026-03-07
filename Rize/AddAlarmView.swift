@@ -141,6 +141,7 @@ struct AddAlarmView: View {
         )
         dataManager.alarms.append(newAlarm)
         dataManager.sortAlarms()
+        NotificationManager.shared.scheduleAlarm(newAlarm)
         dismiss()
     }
 }

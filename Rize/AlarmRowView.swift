@@ -48,6 +48,13 @@ struct AlarmRowView: View {
             // Toggle
             Toggle("", isOn: $alarm.isEnabled)
                 .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
+                .onChange(of: alarm.isEnabled) { oldValue, newValue in
+                    if newValue {
+                        NotificationManager.shared.scheduleAlarm(alarm)
+                    } else {
+                        NotificationManager.shared.cancelAlarm(alarm)
+                    }
+                }
         }
         .padding(.vertical, 8)
     }

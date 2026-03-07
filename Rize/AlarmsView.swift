@@ -71,6 +71,10 @@ struct AlarmsView: View {
     }
     
     func deleteAlarm(at offsets: IndexSet) {
+        offsets.forEach { index in
+            let alarm = dataManager.alarms[index]
+            NotificationManager.shared.cancelAlarm(alarm)
+        }
         dataManager.alarms.remove(atOffsets: offsets)
     }
 }
