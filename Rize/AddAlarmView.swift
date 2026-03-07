@@ -15,6 +15,8 @@ struct AddAlarmView: View {
     @State private var label = ""
     @State private var repeatDays: [String] = []
     @State private var snoozeDuration = 9
+    @State private var selectedSong: TrackResult? = nil
+    @State private var showingSongPicker = false
     
     let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
@@ -23,108 +25,157 @@ struct AddAlarmView: View {
             Color.black
                 .ignoresSafeArea()
             
-            VStack(spacing: 24) {
-                
-                // Header
-                HStack {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.gray)
+            ScrollView {
+                VStack(spacing: 24) {
                     
-                    Spacer()
-                    
-                    Text("New Alarm")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                    
-                    Spacer()
-                    
-                    Button("Save") {
-                        saveAlarm()
-                    }
-                    .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
-                    .fontWeight(.semibold)
-                }
-                .padding(.horizontal)
-                .padding(.top)
-                
-                // Time Picker
-                DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
-                    .datePickerStyle(.wheel)
-                    .labelsHidden()
-                    .colorScheme(.dark)
-                    .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
-                    .frame(maxWidth: .infinity)
-                
-                // Label Field
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("LABEL")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.gray)
-                        .padding(.horizontal)
-                    
-                    TextField("e.g. Work, Gym, School...", text: $label)
-                        .padding()
-                        .background(Color(white: 0.1))
-                        .cornerRadius(12)
-                        .foregroundColor(.white)
-                        .padding(.horizontal)
-                }
-                
-                // Repeat Days
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("REPEAT")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.gray)
-                        .padding(.horizontal)
-                    
-                    HStack(spacing: 8) {
-                        ForEach(days, id: \.self) { day in
-                            let isSelected = repeatDays.contains(day)
-                            Button(action: {
-                                if isSelected {
-                                    repeatDays.removeAll { $0 == day }
-                                } else {
-                                    repeatDays.append(day)
-                                }
-                            }) {
-                                Text(day)
-                                    .font(.system(size: 13, weight: .medium))
-                                    .frame(width: 40, height: 40)
-                                    .background(isSelected ?
-                                        Color(red: 0.0, green: 0.9, blue: 0.4) : Color(white: 0.15))
-                                    .foregroundColor(isSelected ? .black : .gray)
-                                    .cornerRadius(20)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                
-                // Snooze Duration
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("SNOOZE DURATION")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.gray)
-                        .padding(.horizontal)
-                    
+                    // Header
                     HStack {
-                        Text("\(snoozeDuration) minutes")
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .foregroundColor(.gray)
+                        
+                        Spacer()
+                        
+                        Text("New Alarm")
+                            .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
                         
                         Spacer()
                         
-                        Stepper("", value: $snoozeDuration, in: 1...30)
-                            .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
+                        Button("Save") {
+                            saveAlarm()
+                        }
+                        .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
+                        .fontWeight(.semibold)
                     }
-                    .padding()
-                    .background(Color(white: 0.1))
-                    .cornerRadius(12)
                     .padding(.horizontal)
+                    .padding(.top)
+                    
+                    // Time Picker
+                    DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .colorScheme(.dark)
+                        .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
+                        .frame(maxWidth: .infinity)
+                    
+                    // Label Field
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("LABEL")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        TextField("e.g. Work, Gym, School...", text: $label)
+                            .padding()
+                            .background(Color(white: 0.1))
+                            .cornerRadius(12)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Repeat Days
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("REPEAT")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        HStack(spacing: 8) {
+                            ForEach(days, id: \.self) { day in
+                                let isSelected = repeatDays.contains(day)
+                                Button(action: {
+                                    if isSelected {
+                                        repeatDays.removeAll { $0 == day }
+                                    } else {
+                                        repeatDays.append(day)
+                                    }
+                                }) {
+                                    Text(day)
+                                        .font(.system(size: 13, weight: .medium))
+                                        .frame(width: 40, height: 40)
+                                        .background(isSelected ?
+                                            Color(red: 0.0, green: 0.9, blue: 0.4) : Color(white: 0.15))
+                                        .foregroundColor(isSelected ? .black : .gray)
+                                        .cornerRadius(20)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // Snooze Duration
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("SNOOZE DURATION")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        HStack {
+                            Text("\(snoozeDuration) minutes")
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Stepper("", value: $snoozeDuration, in: 1...30)
+                                .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
+                        }
+                        .padding()
+                        .background(Color(white: 0.1))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                    }
+                    
+                    // Wake Up Song
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("WAKE UP SONG")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        Button(action: {
+                            showingSongPicker = true
+                        }) {
+                            HStack {
+                                Image(systemName: "music.note")
+                                    .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
+                                    .frame(width: 30)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    if let song = selectedSong {
+                                        Text(song.name)
+                                            .foregroundColor(.white)
+                                            .font(.system(size: 15))
+                                        Text(song.artist)
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 12))
+                                    } else {
+                                        Text("Pick a song")
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 12))
+                            }
+                            .padding()
+                            .background(Color(white: 0.1))
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                        }
+                    }
+                    
+                    Spacer()
                 }
-                
-                Spacer()
+            }
+        }
+        .sheet(isPresented: $showingSongPicker) {
+            SongPickerView { track in
+                selectedSong = track
             }
         }
     }
@@ -134,8 +185,8 @@ struct AddAlarmView: View {
             time: selectedTime,
             label: label,
             isEnabled: true,
-            songName: "",
-            songURI: "",
+            songName: selectedSong?.name ?? "",
+            songURI: selectedSong?.uri ?? "",
             repeatDays: repeatDays,
             snoozeDuration: snoozeDuration
         )

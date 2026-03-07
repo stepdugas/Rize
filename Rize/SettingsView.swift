@@ -47,9 +47,10 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Spotify Account")
                                         .foregroundColor(.white)
-                                    Text("Not connected")
+                                    Text(SpotifyManager.shared.isConnected ? SpotifyManager.shared.userDisplayName : "Not connected")
                                         .font(.system(size: 12))
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(SpotifyManager.shared.isConnected ?
+                                            Color(red: 0.0, green: 0.9, blue: 0.4) : .gray)
                                 }
                                 Spacer()
                             }
@@ -59,7 +60,7 @@ struct SettingsView: View {
                                 .background(Color.gray.opacity(0.3))
                             
                             Button(action: {
-                                // Spotify connect coming soon
+                                SpotifyManager.shared.connect()
                             }) {
                                 HStack {
                                     Image(systemName: "link.circle.fill")

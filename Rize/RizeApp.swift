@@ -18,6 +18,9 @@ struct RizeApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .onOpenURL { url in
+                    SpotifyManager.shared.handleURL(url)
+                }
         }
     }
 }

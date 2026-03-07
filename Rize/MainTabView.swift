@@ -20,11 +20,6 @@ struct MainTabView: View {
                     Label("Sleep", systemImage: "moon.fill")
                 }
             
-            MusicView()
-                .tabItem {
-                    Label("Music", systemImage: "music.note")
-                }
-            
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
