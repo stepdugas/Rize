@@ -66,3 +66,24 @@ struct SpotifyPlaylist: Codable, Sendable {
 struct SpotifyPlaylistTracks: Codable, Sendable {
     let total: Int
 }
+// MARK: - Auth Models
+struct SpotifyTokenResponse: Codable, Sendable {
+    let access_token: String
+    let refresh_token: String?
+    let expires_in: Int
+    let token_type: String
+}
+
+struct SpotifyUserProfile: Codable, Sendable {
+    let id: String
+    let display_name: String?
+}
+
+// MARK: - Recently Played Models
+struct SpotifyRecentlyPlayedResponse: Codable, Sendable {
+    let items: [SpotifyPlayHistoryObject]
+}
+
+struct SpotifyPlayHistoryObject: Codable, Sendable {
+    let track: SpotifyTrack
+}
