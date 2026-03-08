@@ -9,9 +9,11 @@ import SwiftUI
 
 struct AlarmRowView: View {
     @Binding var alarm: Alarm
+    var onTap: () -> Void
     
     var body: some View {
         HStack {
+            // Tappable left side
             VStack(alignment: .leading, spacing: 4) {
                 // Time
                 Text(timeString(from: alarm.time))
@@ -42,12 +44,16 @@ struct AlarmRowView: View {
                         .foregroundColor(.gray)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onTap()
+            }
             
-            Spacer()
-            
-            // Toggle
+            // Toggle — separate from tap area
             Toggle("", isOn: $alarm.isEnabled)
                 .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
+                .fixedSize()
                 .onChange(of: alarm.isEnabled) { oldValue, newValue in
                     if newValue {
                         NotificationManager.shared.scheduleAlarm(alarm)

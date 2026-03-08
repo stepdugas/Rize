@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AudioToolbox
 
 @main
 struct RizeApp: App {
@@ -52,20 +53,32 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         return true
     }
     
+    // Called when user taps the notification
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
+        
+        // Start alarm sound — overrides silent mode
+        AlarmAudioManager.shared.startAlarmSound()
+        
+        // Then trigger Spotify
         if let songURI = userInfo["songURI"] as? String, !songURI.isEmpty {
             SpotifyManager.shared.playTrack(uri: songURI)
         }
         completionHandler()
     }
     
+    // Called when notification arrives while app is in foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         let userInfo = notification.request.content.userInfo
+        
+        // Start alarm sound — overrides silent mode
+        AlarmAudioManager.shared.startAlarmSound()
+        
+        // Then trigger Spotify
         if let songURI = userInfo["songURI"] as? String, !songURI.isEmpty {
             SpotifyManager.shared.playTrack(uri: songURI)
         }

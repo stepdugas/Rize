@@ -93,11 +93,10 @@ struct AlarmsView: View {
                 } else {
                     List {
                         ForEach(Array(dataManager.alarms.enumerated()), id: \.element.id) { index, alarm in
-                            AlarmRowView(alarm: $dataManager.alarms[index])
-                                .listRowBackground(Color(white: 0.1))
-                                .onTapGesture {
-                                    selectedAlarmIndex = index
-                                }
+                            AlarmRowView(alarm: $dataManager.alarms[index]) {
+                                selectedAlarmIndex = index
+                            }
+                            .listRowBackground(Color(white: 0.1))
                         }
                         .onDelete(perform: deleteAlarm)
                     }

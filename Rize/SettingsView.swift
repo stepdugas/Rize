@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var dataManager = DataManager.shared
+    @ObservedObject var spotifyManager = SpotifyManager.shared
     @State private var vibrationEnabled = true
     @State private var notificationsEnabled = true
     
@@ -47,16 +48,16 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Spotify Account")
                                         .foregroundColor(.white)
-                                    Text(SpotifyManager.shared.isConnected ?
-                                        SpotifyManager.shared.userDisplayName : "Not connected")
+                                    Text(spotifyManager.isConnected ?
+                                        (spotifyManager.userDisplayName.isEmpty ? "Connected" : spotifyManager.userDisplayName)
+                                        : "Not connected")
                                         .font(.system(size: 12))
-                                        .foregroundColor(SpotifyManager.shared.isConnected ?
+                                        .foregroundColor(spotifyManager.isConnected ?
                                             Color(red: 0.0, green: 0.9, blue: 0.4) : .gray)
                                 }
                                 Spacer()
                                 
-                                // Connected indicator
-                                if SpotifyManager.shared.isConnected {
+                                if spotifyManager.isConnected {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
                                 }
@@ -66,10 +67,9 @@ struct SettingsView: View {
                             Divider()
                                 .background(Color.gray.opacity(0.3))
                             
-                            if SpotifyManager.shared.isConnected {
-                                // Disconnect button
+                            if spotifyManager.isConnected {
                                 Button(action: {
-                                    SpotifyManager.shared.disconnect()
+                                    spotifyManager.disconnect()
                                 }) {
                                     HStack {
                                         Image(systemName: "link.badge.xmark")
@@ -82,9 +82,8 @@ struct SettingsView: View {
                                     .padding()
                                 }
                             } else {
-                                // Connect button
                                 Button(action: {
-                                    SpotifyManager.shared.connect()
+                                    spotifyManager.connect()
                                 }) {
                                     HStack {
                                         Image(systemName: "link.circle.fill")
