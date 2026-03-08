@@ -47,33 +47,58 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Spotify Account")
                                         .foregroundColor(.white)
-                                    Text(SpotifyManager.shared.isConnected ? SpotifyManager.shared.userDisplayName : "Not connected")
+                                    Text(SpotifyManager.shared.isConnected ?
+                                        SpotifyManager.shared.userDisplayName : "Not connected")
                                         .font(.system(size: 12))
                                         .foregroundColor(SpotifyManager.shared.isConnected ?
                                             Color(red: 0.0, green: 0.9, blue: 0.4) : .gray)
                                 }
                                 Spacer()
+                                
+                                // Connected indicator
+                                if SpotifyManager.shared.isConnected {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
+                                }
                             }
                             .padding()
                             
                             Divider()
                                 .background(Color.gray.opacity(0.3))
                             
-                            Button(action: {
-                                SpotifyManager.shared.connect()
-                            }) {
-                                HStack {
-                                    Image(systemName: "link.circle.fill")
-                                        .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
-                                        .frame(width: 30)
-                                    Text("Connect Spotify")
-                                        .foregroundColor(.white)
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.gray)
-                                        .font(.system(size: 12))
+                            if SpotifyManager.shared.isConnected {
+                                // Disconnect button
+                                Button(action: {
+                                    SpotifyManager.shared.disconnect()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "link.badge.xmark")
+                                            .foregroundColor(.red)
+                                            .frame(width: 30)
+                                        Text("Disconnect Spotify")
+                                            .foregroundColor(.red)
+                                        Spacer()
+                                    }
+                                    .padding()
                                 }
-                                .padding()
+                            } else {
+                                // Connect button
+                                Button(action: {
+                                    SpotifyManager.shared.connect()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "link.circle.fill")
+                                            .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
+                                            .frame(width: 30)
+                                        Text("Connect Spotify")
+                                            .foregroundColor(.white)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 12))
+                                    }
+                                    .padding()
+                                }
                             }
                         }
                     }

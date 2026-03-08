@@ -42,6 +42,7 @@ class NotificationManager: ObservableObject {
             "Time to wake up! 🎵" :
             "Time to wake up! Now playing \(alarm.songName) 🎵"
         content.sound = .default
+        content.userInfo = ["songURI": alarm.songURI]
         
         // Get hour and minute from alarm time
         let calendar = Calendar.current

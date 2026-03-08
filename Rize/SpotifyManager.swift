@@ -131,6 +131,49 @@ class SpotifyManager: NSObject, ObservableObject {
     }
 }
 
+// MARK: - Search Playlists
+func searchPlaylists(query: String, completion: @escaping ([PlaylistResult]) -> Void) {
+    guard let token = accessToken else {
+        completion([])
+        return
+    }
+    
+    let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+    let urlString = "https://api.spotify.com/v1/search?q=\(encodedQuery)&type=playlist&limit=20"
+    
+    guard let url = URL(string: urlString) else {
+        completion([])
+        return
+    }
+    
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        guard let data = data else {
+            DispatchQueue.main.async { completion([]) }
+            return
+        }
+        
+        do {
+            let decoded = try JSONDecoder().decode(SpotifyPlaylistSearchResponse.self, from: data)
+            let results = decoded.playlists.items.map { item in
+                PlaylistResult(
+                    id: item.id,
+                    name: item.name,
+                    description: item.description ?? "",
+                    uri: item.uri,
+                    trackCount: item.tracks?.total ?? 0
+                )
+            }
+            DispatchQueue.main.async { completion(results) }
+        } catch {
+            print("Playlist search decode error: \(error)")
+            DispatchQueue.main.async { completion([]) }
+        }
+    }.resume()
+}
+
 // MARK: - SPTAppRemoteDelegate
 extension SpotifyManager: SPTAppRemoteDelegate {
     func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {

@@ -16,6 +16,8 @@ struct AddSleepView: View {
     @State private var endTime = Date()
     @State private var fadeOut = false
     @State private var fadeOutDuration = 15
+    @State private var selectedPlaylist: PlaylistResult? = nil
+    @State private var showingPlaylistPicker = false
     
     var body: some View {
         ZStack {
@@ -94,6 +96,48 @@ struct AddSleepView: View {
                             .frame(maxWidth: .infinity)
                     }
                     
+                    // Sleep Playlist
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("SLEEP PLAYLIST")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        Button(action: {
+                            showingPlaylistPicker = true
+                        }) {
+                            HStack {
+                                Image(systemName: "music.note.list")
+                                    .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
+                                    .frame(width: 30)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    if let playlist = selectedPlaylist {
+                                        Text(playlist.name)
+                                            .foregroundColor(.white)
+                                            .font(.system(size: 15))
+                                        Text("\(playlist.trackCount) songs")
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 12))
+                                    } else {
+                                        Text("Pick a playlist")
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 12))
+                            }
+                            .padding()
+                            .background(Color(white: 0.1))
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                        }
+                    }
+                    
                     // Fade Out Toggle
                     VStack(alignment: .leading, spacing: 8) {
                         Text("FADE OUT")
@@ -139,6 +183,11 @@ struct AddSleepView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingPlaylistPicker) {
+            PlaylistPickerView { playlist in
+                selectedPlaylist = playlist
+            }
+        }
     }
     
     func saveSchedule() {
@@ -147,8 +196,8 @@ struct AddSleepView: View {
             endTime: endTime,
             label: label,
             isEnabled: true,
-            playlistName: "",
-            playlistURI: "",
+            playlistName: selectedPlaylist?.name ?? "",
+            playlistURI: selectedPlaylist?.uri ?? "",
             fadeOut: fadeOut,
             fadeOutDuration: fadeOutDuration
         )

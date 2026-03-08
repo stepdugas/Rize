@@ -39,3 +39,31 @@ struct SpotifyArtist: Codable {
 struct SpotifyAlbum: Codable {
     let name: String
 }
+// MARK: - Playlist Models
+struct PlaylistResult: Identifiable, Codable {
+    var id: String
+    var name: String
+    var description: String
+    var uri: String
+    var trackCount: Int
+}
+
+struct SpotifyPlaylistSearchResponse: Codable {
+    let playlists: SpotifyPlaylistList
+}
+
+struct SpotifyPlaylistList: Codable {
+    let items: [SpotifyPlaylist]
+}
+
+struct SpotifyPlaylist: Codable {
+    let id: String
+    let name: String
+    let description: String?
+    let uri: String
+    let tracks: SpotifyPlaylistTracks?
+}
+
+struct SpotifyPlaylistTracks: Codable {
+    let total: Int
+}
