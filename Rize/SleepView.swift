@@ -10,6 +10,7 @@ import SwiftUI
 struct SleepView: View {
     @ObservedObject var dataManager = DataManager.shared
     @State private var showingAddSchedule = false
+    @State private var selectedScheduleIndex: Int? = nil
     
     var body: some View {
         ZStack {
@@ -54,9 +55,12 @@ struct SleepView: View {
                     Spacer()
                 } else {
                     List {
-                        ForEach($dataManager.sleepSchedules) { $schedule in
-                            SleepRowView(schedule: $schedule)
+                        ForEach(Array(dataManager.sleepSchedules.enumerated()), id: \.element.id) { index, schedule in
+                            SleepRowView(schedule: $dataManager.sleepSchedules[index])
                                 .listRowBackground(Color(white: 0.1))
+                                .onTapGesture {
+                                    selectedScheduleIndex = index
+                                }
                         }
                         .onDelete(perform: deleteSchedule)
                     }
@@ -67,6 +71,9 @@ struct SleepView: View {
         }
         .sheet(isPresented: $showingAddSchedule) {
             AddSleepView()
+        }
+        .sheet(item: $selectedScheduleIndex) { index in
+            EditSleepView(scheduleIndex: index)
         }
     }
     

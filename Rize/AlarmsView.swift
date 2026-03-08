@@ -10,6 +10,7 @@ import SwiftUI
 struct AlarmsView: View {
     @ObservedObject var dataManager = DataManager.shared
     @State private var showingAddAlarm = false
+    @State private var selectedAlarmIndex: Int? = nil
     
     var body: some View {
         ZStack {
@@ -54,9 +55,12 @@ struct AlarmsView: View {
                     Spacer()
                 } else {
                     List {
-                        ForEach($dataManager.alarms) { $alarm in
-                            AlarmRowView(alarm: $alarm)
+                        ForEach(Array(dataManager.alarms.enumerated()), id: \.element.id) { index, alarm in
+                            AlarmRowView(alarm: $dataManager.alarms[index])
                                 .listRowBackground(Color(white: 0.1))
+                                .onTapGesture {
+                                    selectedAlarmIndex = index
+                                }
                         }
                         .onDelete(perform: deleteAlarm)
                     }
@@ -68,6 +72,9 @@ struct AlarmsView: View {
         .sheet(isPresented: $showingAddAlarm) {
             AddAlarmView()
         }
+        .sheet(item: $selectedAlarmIndex) { index in
+            EditAlarmView(alarmIndex: index)
+        }
     }
     
     func deleteAlarm(at offsets: IndexSet) {
@@ -77,4 +84,8 @@ struct AlarmsView: View {
         }
         dataManager.alarms.remove(atOffsets: offsets)
     }
+}
+
+extension Int: Identifiable {
+    public var id: Int { self }
 }

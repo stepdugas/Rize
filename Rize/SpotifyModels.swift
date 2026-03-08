@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TrackResult: Identifiable, Codable {
+struct TrackResult: Identifiable, Codable, Sendable {
     var id: String
     var name: String
     var artist: String
@@ -15,16 +15,15 @@ struct TrackResult: Identifiable, Codable {
     var albumName: String
 }
 
-// MARK: - Spotify Search Response Models
-struct SpotifySearchResponse: Codable {
+struct SpotifySearchResponse: Codable, Sendable {
     let tracks: SpotifyTrackList
 }
 
-struct SpotifyTrackList: Codable {
+struct SpotifyTrackList: Codable, Sendable {
     let items: [SpotifyTrack]
 }
 
-struct SpotifyTrack: Codable {
+struct SpotifyTrack: Codable, Sendable {
     let id: String
     let name: String
     let uri: String
@@ -32,15 +31,15 @@ struct SpotifyTrack: Codable {
     let album: SpotifyAlbum
 }
 
-struct SpotifyArtist: Codable {
+struct SpotifyArtist: Codable, Sendable {
     let name: String
 }
 
-struct SpotifyAlbum: Codable {
+struct SpotifyAlbum: Codable, Sendable {
     let name: String
 }
-// MARK: - Playlist Models
-struct PlaylistResult: Identifiable, Codable {
+
+struct PlaylistResult: Identifiable, Codable, Sendable {
     var id: String
     var name: String
     var description: String
@@ -48,15 +47,15 @@ struct PlaylistResult: Identifiable, Codable {
     var trackCount: Int
 }
 
-struct SpotifyPlaylistSearchResponse: Codable {
+struct SpotifyPlaylistSearchResponse: Codable, Sendable {
     let playlists: SpotifyPlaylistList
 }
 
-struct SpotifyPlaylistList: Codable {
+struct SpotifyPlaylistList: Codable, Sendable {
     let items: [SpotifyPlaylist]
 }
 
-struct SpotifyPlaylist: Codable {
+struct SpotifyPlaylist: Codable, Sendable {
     let id: String
     let name: String
     let description: String?
@@ -64,6 +63,6 @@ struct SpotifyPlaylist: Codable {
     let tracks: SpotifyPlaylistTracks?
 }
 
-struct SpotifyPlaylistTracks: Codable {
+struct SpotifyPlaylistTracks: Codable, Sendable {
     let total: Int
 }

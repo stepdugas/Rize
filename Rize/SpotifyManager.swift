@@ -39,10 +39,8 @@ class SpotifyManager: NSObject, ObservableObject {
         appRemote?.delegate = self
     }
     
-    // MARK: - Connect to Spotify
     func connect() {
         guard let appRemote = appRemote else { return }
-        
         if let token = accessToken {
             appRemote.connectionParameters.accessToken = token
             appRemote.connect()
@@ -51,7 +49,6 @@ class SpotifyManager: NSObject, ObservableObject {
         }
     }
     
-    // MARK: - Disconnect
     func disconnect() {
         appRemote?.disconnect()
         isConnected = false
@@ -60,10 +57,8 @@ class SpotifyManager: NSObject, ObservableObject {
         UserDefaults.standard.removeObject(forKey: "spotifyAccessToken")
     }
     
-    // MARK: - Play a track by URI
     func playTrack(uri: String) {
         guard let appRemote = appRemote else { return }
-        
         if appRemote.isConnected {
             appRemote.playerAPI?.play(uri, callback: { result, error in
                 if let error = error {
@@ -77,7 +72,6 @@ class SpotifyManager: NSObject, ObservableObject {
         }
     }
     
-    // MARK: - Handle redirect from Spotify
     func handleURL(_ url: URL) {
         let parameters = appRemote?.authorizationParameters(from: url)
         if let token = parameters?[SPTAppRemoteAccessTokenKey] as? String {
@@ -87,91 +81,53 @@ class SpotifyManager: NSObject, ObservableObject {
         }
     }
     
-    // MARK: - Search Tracks
     func searchTracks(query: String, completion: @escaping ([TrackResult]) -> Void) {
-        guard let token = accessToken else {
-            completion([])
-            return
-        }
-        
+        guard let token = accessToken else { completion([]); return }
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
         let urlString = "https://api.spotify.com/v1/search?q=\(encodedQuery)&type=track&limit=20"
-        
-        guard let url = URL(string: urlString) else {
-            completion([])
-            return
-        }
-        
+        guard let url = URL(string: urlString) else { completion([]); return }
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data else {
-                DispatchQueue.main.async { completion([]) }
-                return
-            }
-            
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            guard let data = data else { DispatchQueue.main.async { completion([]) }; return }
             do {
                 let decoded = try JSONDecoder().decode(SpotifySearchResponse.self, from: data)
-                let results = decoded.tracks.items.map { item in
-                    TrackResult(
-                        id: item.id,
-                        name: item.name,
-                        artist: item.artists.first?.name ?? "Unknown Artist",
-                        uri: item.uri,
-                        albumName: item.album.name
-                    )
+                let results = decoded.tracks.items.map {
+                    TrackResult(id: $0.id, name: $0.name,
+                               artist: $0.artists.first?.name ?? "Unknown",
+                               uri: $0.uri, albumName: $0.album.name)
                 }
                 DispatchQueue.main.async { completion(results) }
             } catch {
-                print("Search decode error: \(error)")
+                print("Search error: \(error)")
                 DispatchQueue.main.async { completion([]) }
             }
         }.resume()
     }
-}
-
-// MARK: - Search Playlists
-func searchPlaylists(query: String, completion: @escaping ([PlaylistResult]) -> Void) {
-    guard let token = accessToken else {
-        completion([])
-        return
-    }
     
-    let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-    let urlString = "https://api.spotify.com/v1/search?q=\(encodedQuery)&type=playlist&limit=20"
-    
-    guard let url = URL(string: urlString) else {
-        completion([])
-        return
-    }
-    
-    var request = URLRequest(url: url)
-    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    
-    URLSession.shared.dataTask(with: request) { data, response, error in
-        guard let data = data else {
-            DispatchQueue.main.async { completion([]) }
-            return
-        }
-        
-        do {
-            let decoded = try JSONDecoder().decode(SpotifyPlaylistSearchResponse.self, from: data)
-            let results = decoded.playlists.items.map { item in
-                PlaylistResult(
-                    id: item.id,
-                    name: item.name,
-                    description: item.description ?? "",
-                    uri: item.uri,
-                    trackCount: item.tracks?.total ?? 0
-                )
+    func searchPlaylists(query: String, completion: @escaping ([PlaylistResult]) -> Void) {
+        guard let token = accessToken else { completion([]); return }
+        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+        let urlString = "https://api.spotify.com/v1/search?q=\(encodedQuery)&type=playlist&limit=20"
+        guard let url = URL(string: urlString) else { completion([]); return }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            guard let data = data else { DispatchQueue.main.async { completion([]) }; return }
+            do {
+                let decoded = try JSONDecoder().decode(SpotifyPlaylistSearchResponse.self, from: data)
+                let results = decoded.playlists.items.map {
+                    PlaylistResult(id: $0.id, name: $0.name,
+                                  description: $0.description ?? "",
+                                  uri: $0.uri, trackCount: $0.tracks?.total ?? 0)
+                }
+                DispatchQueue.main.async { completion(results) }
+            } catch {
+                print("Playlist error: \(error)")
+                DispatchQueue.main.async { completion([]) }
             }
-            DispatchQueue.main.async { completion(results) }
-        } catch {
-            print("Playlist search decode error: \(error)")
-            DispatchQueue.main.async { completion([]) }
-        }
-    }.resume()
+        }.resume()
+    }
 }
 
 // MARK: - SPTAppRemoteDelegate
@@ -179,18 +135,9 @@ extension SpotifyManager: SPTAppRemoteDelegate {
     func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
         isConnected = true
         print("Spotify connected ✅")
-        
         if let pendingURI = UserDefaults.standard.string(forKey: "pendingSpotifyURI") {
             playTrack(uri: pendingURI)
             UserDefaults.standard.removeObject(forKey: "pendingSpotifyURI")
-        }
-        
-        appRemote.userAPI?.fetchCurrentUser { result, error in
-            if let user = result as? SPTAppRemoteUserDetails {
-                DispatchQueue.main.async {
-                    self.userDisplayName = user.displayName ?? ""
-                }
-            }
         }
     }
     
