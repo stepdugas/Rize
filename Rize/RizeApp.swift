@@ -10,6 +10,8 @@ import SwiftUI
 @main
 struct RizeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @State private var isShowingLaunch = true
+    @State private var hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
     
     init() {
         NotificationManager.shared.requestPermission { granted in
@@ -19,10 +21,26 @@ struct RizeApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainTabView()
-                .onOpenURL { url in
-                    SpotifyManager.shared.handleURL(url)
+            if isShowingLaunch {
+                LaunchScreenView()
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            withAnimation(.easeOut(duration: 0.5)) {
+                                isShowingLaunch = false
+                            }
+                        }
+                    }
+            } else if !hasSeenOnboarding {
+                OnboardingView {
+                    UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                    hasSeenOnboarding = true
                 }
+            } else {
+                MainTabView()
+                    .onOpenURL { url in
+                        SpotifyManager.shared.handleURL(url)
+                    }
+            }
         }
     }
 }
@@ -34,7 +52,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         return true
     }
     
-    // Called when user taps the notification
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
@@ -45,7 +62,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         completionHandler()
     }
     
-    // Called when notification arrives while app is in foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
