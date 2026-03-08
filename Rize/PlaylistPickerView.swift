@@ -13,7 +13,13 @@ struct PlaylistPickerView: View {
     
     @State private var searchText = ""
     @State private var searchResults: [PlaylistResult] = []
+    @State private var userPlaylists: [PlaylistResult] = []
     @State private var isSearching = false
+    @State private var isLoadingPlaylists = false
+    
+    var isShowingUserPlaylists: Bool {
+        searchText.isEmpty && !userPlaylists.isEmpty
+    }
     
     var body: some View {
         ZStack {
@@ -68,18 +74,18 @@ struct PlaylistPickerView: View {
                 .padding(.horizontal)
                 .padding(.top, 16)
                 
-                if isSearching {
+                if isSearching || isLoadingPlaylists {
                     Spacer()
                     ProgressView()
                         .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
                     Spacer()
-                } else if searchResults.isEmpty && !searchText.isEmpty {
+                } else if !searchText.isEmpty && searchResults.isEmpty {
                     Spacer()
                     Text("No playlists found")
                         .foregroundColor(.gray)
                         .italic()
                     Spacer()
-                } else if searchResults.isEmpty {
+                } else if searchText.isEmpty && userPlaylists.isEmpty {
                     Spacer()
                     VStack(spacing: 12) {
                         Image(systemName: "music.note.list")
@@ -94,13 +100,23 @@ struct PlaylistPickerView: View {
                     }
                     Spacer()
                 } else {
-                    List(searchResults) { playlist in
+                    // Section header
+                    HStack {
+                        Text(isShowingUserPlaylists ? "YOUR PLAYLISTS" : "RESULTS")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 16)
+                    .padding(.bottom, 4)
+                    
+                    List(isShowingUserPlaylists ? userPlaylists : searchResults) { playlist in
                         Button(action: {
                             onPlaylistSelected(playlist)
                             dismiss()
                         }) {
                             HStack(spacing: 12) {
-                                // Playlist icon
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 8)
                                         .fill(Color(white: 0.15))
@@ -136,9 +152,20 @@ struct PlaylistPickerView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                 }
             }
+        }
+        .onAppear {
+            loadUserPlaylists()
+        }
+    }
+    
+    func loadUserPlaylists() {
+        isLoadingPlaylists = true
+        SpotifyManager.shared.fetchUserPlaylists { playlists in
+            isLoadingPlaylists = false
+            userPlaylists = playlists
         }
     }
     

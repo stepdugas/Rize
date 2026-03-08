@@ -17,19 +17,15 @@ struct OnboardingView: View {
                 .ignoresSafeArea()
             
             TabView(selection: $currentPage) {
-                // Page 1 - Welcome
                 WelcomePage()
                     .tag(0)
                 
-                // Page 2 - Features
                 FeaturesPage()
                     .tag(1)
                 
-                // Page 3 - DND
                 DNDPage()
                     .tag(2)
                 
-                // Page 4 - Spotify
                 SpotifyPage(onComplete: onComplete)
                     .tag(3)
             }
@@ -116,7 +112,6 @@ struct FeaturesPage: View {
                     title: "Alarms",
                     description: "Set a wake up alarm with your favorite Spotify song. Never wake up to a boring beep again."
                 )
-                
                 FeatureCard(
                     icon: "moon.fill",
                     title: "Sleep",
@@ -240,11 +235,9 @@ struct DNDStep: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
             }
-            
             Text(LocalizedStringKey(text))
                 .font(.system(size: 14))
                 .foregroundColor(.white)
-            
             Spacer()
         }
     }
@@ -274,15 +267,34 @@ struct SpotifyPage: View {
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                 
-                Text("You'll need Spotify installed on your iPhone. Free or Premium both work!")
+                Text("Rize requires **Spotify Premium** to wake you up with your music reliably.")
                     .font(.system(size: 15, weight: .light))
                     .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                
+                // Premium requirement card
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
+                    Text("Spotify Premium required")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white)
+                    Spacer()
+                }
+                .padding()
+                .background(Color(red: 0.0, green: 0.9, blue: 0.4).opacity(0.1))
+                .cornerRadius(12)
+                .padding(.horizontal, 32)
+                
+                Text("You'll need Spotify installed on your iPhone. Don't have Premium? Visit spotify.com to upgrade.")
+                    .font(.system(size: 13, weight: .light))
+                    .foregroundColor(.gray.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             }
             
             VStack(spacing: 16) {
-                // Connect button
                 Button(action: {
                     SpotifyManager.shared.connect()
                     onComplete()
@@ -301,7 +313,6 @@ struct SpotifyPage: View {
                 }
                 .padding(.horizontal, 32)
                 
-                // Skip button
                 Button(action: {
                     onComplete()
                 }) {

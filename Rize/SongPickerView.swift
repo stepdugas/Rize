@@ -13,7 +13,13 @@ struct SongPickerView: View {
     
     @State private var searchText = ""
     @State private var searchResults: [TrackResult] = []
+    @State private var recentlyPlayed: [TrackResult] = []
     @State private var isSearching = false
+    @State private var isLoadingRecent = false
+    
+    var isShowingRecent: Bool {
+        searchText.isEmpty && !recentlyPlayed.isEmpty
+    }
     
     var body: some View {
         ZStack {
@@ -36,7 +42,6 @@ struct SongPickerView: View {
                     
                     Spacer()
                     
-                    // Invisible button to balance header
                     Button("Cancel") {}
                         .foregroundColor(.clear)
                         .disabled(true)
@@ -69,18 +74,18 @@ struct SongPickerView: View {
                 .padding(.horizontal)
                 .padding(.top, 16)
                 
-                if isSearching {
+                if isSearching || isLoadingRecent {
                     Spacer()
                     ProgressView()
                         .tint(Color(red: 0.0, green: 0.9, blue: 0.4))
                     Spacer()
-                } else if searchResults.isEmpty && !searchText.isEmpty {
+                } else if !searchText.isEmpty && searchResults.isEmpty {
                     Spacer()
                     Text("No results found")
                         .foregroundColor(.gray)
                         .italic()
                     Spacer()
-                } else if searchResults.isEmpty {
+                } else if searchText.isEmpty && recentlyPlayed.isEmpty {
                     Spacer()
                     VStack(spacing: 12) {
                         Image(systemName: "music.note")
@@ -95,13 +100,23 @@ struct SongPickerView: View {
                     }
                     Spacer()
                 } else {
-                    List(searchResults) { track in
+                    // Section header
+                    HStack {
+                        Text(isShowingRecent ? "RECENTLY PLAYED" : "RESULTS")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 16)
+                    .padding(.bottom, 4)
+                    
+                    List(isShowingRecent ? recentlyPlayed : searchResults) { track in
                         Button(action: {
                             onSongSelected(track)
                             dismiss()
                         }) {
                             HStack(spacing: 12) {
-                                // Music note icon
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 8)
                                         .fill(Color(white: 0.15))
@@ -136,9 +151,20 @@ struct SongPickerView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                 }
             }
+        }
+        .onAppear {
+            loadRecentlyPlayed()
+        }
+    }
+    
+    func loadRecentlyPlayed() {
+        isLoadingRecent = true
+        SpotifyManager.shared.fetchRecentlyPlayedTracks { tracks in
+            isLoadingRecent = false
+            recentlyPlayed = tracks
         }
     }
     
